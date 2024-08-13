@@ -173,5 +173,24 @@ node.innerHTML = '<video src="" controls>';
 assert(node.innerHTML, '<video src="" controls></video>');
 
 node.innerHTML = '<div>The <strong>quick</strong> brown fox</div><div>Jumped over<br>The lazy\ndog</div>';
-assert(node.innerText, 'The quick brown fox\nJumped over\nThe lazy dog', 'innerText newlines');
+assert(v(node.innerText), v('\nThe quick brown fox\nJumped over\nThe lazy dog\n'), 'innerText newlines');
 assert(node.textContent, 'The quick brown foxJumped overThe lazy\ndog', 'textContent no newlines');
+
+function v(str) {
+  return str
+    .replace(/ /g, '·')   // Replace space with middle dot
+    .replace(/\t/g, '→')  // Replace tab with right arrow
+    .replace(/\n/g, '↵'); // Replace newline with down-left arrow
+}
+
+node.innerHTML = '<table><tr><th>Header1</th><th>Header2</th></tr><tr><td>Row1,Col1</td><td>Row1,Col2</td></tr><tr><td>Row2,Col1</td><td>Row2,Col2</td></tr></table>';
+assert(v(node.innerText), v('\nHeader1\tHeader2\nRow1,Col1\tRow1,Col2\nRow2,Col1\tRow2,Col2'));
+
+node.innerHTML = '<div>prefix<div>div</div>suffix</div>';
+assert(v(node.innerText), v('\nprefix\ndiv\nsuffix\n'));
+
+node.innerHTML = '<div>prefix<div>div1<div>div2</div></div>suffix</div>';
+assert(v(node.innerText), v('\nprefix\ndiv1\ndiv2\nsuffix\n'));
+
+node.innerHTML = '<div>prefix<div>foo<div>nested</div>bar</div>suffix</div>';
+assert(v(node.innerText), v('\nprefix\nfoo\nnested\nbar\nsuffix\n'));
