@@ -165,8 +165,8 @@ class Element extends ParentNode {
     while (next !== end) {
       // Add tabulators between table columns
       if (
-          TABLE_ELEMENTS.has(next.previousElementSibling?.tagName) &&
-          TABLE_ELEMENTS.has(next.tagName)) {
+          TABLE_ELEMENTS.has(next.tagName) &&
+          TABLE_ELEMENTS.has(next.previousElementSibling?.tagName)) {
           text.push('\t');
       }
 
