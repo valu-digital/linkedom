@@ -3839,7 +3839,9 @@ const DOCUMENT_TYPE_NODE = 10;
 const DOCUMENT_FRAGMENT_NODE = 11;
 
 // Elements
-const BLOCK_ELEMENTS = new Set(['ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'BODY', 'BR', 'BUTTON', 'CANVAS', 'CAPTION', 'COL', 'COLGROUP', 'DD', 'DIV', 'DL', 'DT', 'EMBED', 'FIELDSET', 'FIGCAPTION', 'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'UL', 'OL', 'P']);
+const BLOCK_ELEMENTS = new Set(['ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'BODY', 'BR', 'BUTTON', 'CANVAS', 'CAPTION', 'COL', 'COLGROUP', 'DD', 'DIV', 'DL', 'DT', 'EMBED', 'FIELDSET', 'FIGCAPTION', 'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'UL', 'OL', 'P', 'TR', 'PRE', 'HR', 'ADDRESS']);
+
+const TABLE_ELEMENTS = new Set(['TH', 'TD']);
 
 // TreeWalker
 const SHOW_ALL = -1;
@@ -7744,15 +7746,35 @@ let Element$1 = class Element extends ParentNode {
     const text = [];
     let {[NEXT]: next, [END]: end} = this;
     while (next !== end) {
+      // Add tabulators between table columns
+      if (
+          TABLE_ELEMENTS.has(next.previousElementSibling?.tagName) &&
+          TABLE_ELEMENTS.has(next.tagName)) {
+          text.push('\t');
+      }
+
       if (next.nodeType === TEXT_NODE) {
         text.push(next.textContent.replace(/\s+/g, ' '));
       } else if(
         text.length && next[NEXT] != end &&
         BLOCK_ELEMENTS.has(next.tagName)
+        && text.at(-1) !== '\n'
       ) {
         text.push('\n');
       }
+
+      // add line breaks on closing elements
+      if (
+        text.at(-1) !== '\n' &&
+        (!next.nextSibling || BLOCK_ELEMENTS.has(next.nextSibling?.tagName)) &&
+          (!next.previousSibling || BLOCK_ELEMENTS.has(next.previousSibling?.tagName)) &&
+          BLOCK_ELEMENTS.has(next.parentElement?.tagName)
+      ) {
+        text.push('\n');
+      }
+
       next = next[NEXT];
+
     }
     return text.join('');
   }

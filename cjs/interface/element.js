@@ -4,6 +4,7 @@
 const {
   ATTRIBUTE_NODE,
   BLOCK_ELEMENTS,
+  TABLE_ELEMENTS,
   CDATA_SECTION_NODE,
   COMMENT_NODE,
   ELEMENT_NODE,
@@ -162,15 +163,35 @@ class Element extends ParentNode {
     const text = [];
     let {[NEXT]: next, [END]: end} = this;
     while (next !== end) {
+      // Add tabulators between table columns
+      if (
+          TABLE_ELEMENTS.has(next.previousElementSibling?.tagName) &&
+          TABLE_ELEMENTS.has(next.tagName)) {
+          text.push('\t');
+      }
+
       if (next.nodeType === TEXT_NODE) {
         text.push(next.textContent.replace(/\s+/g, ' '));
       } else if(
         text.length && next[NEXT] != end &&
         BLOCK_ELEMENTS.has(next.tagName)
+        && text.at(-1) !== '\n'
       ) {
         text.push('\n');
       }
+
+      // add line breaks on closing elements
+      if (
+        text.at(-1) !== '\n' &&
+        (!next.nextSibling || BLOCK_ELEMENTS.has(next.nextSibling?.tagName)) &&
+          (!next.previousSibling || BLOCK_ELEMENTS.has(next.previousSibling?.tagName)) &&
+          BLOCK_ELEMENTS.has(next.parentElement?.tagName)
+      ) {
+        text.push('\n');
+      }
+
       next = next[NEXT];
+
     }
     return text.join('');
   }
