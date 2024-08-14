@@ -194,3 +194,35 @@ assert(v(node.innerText), v('\nprefix\ndiv1\ndiv2\nsuffix\n'));
 
 node.innerHTML = '<div>prefix<div>foo<div>nested</div>bar</div>suffix</div>';
 assert(v(node.innerText), v('\nprefix\nfoo\nnested\nbar\nsuffix\n'));
+
+node.innerHTML = `
+
+  <div>
+    content
+    <div class="crap">
+      crap
+      <span>
+      morecrap
+      </span>
+
+    </div>
+    <span>
+    more content
+    </span>
+
+  </div>
+
+`
+console.log(node.__getInnerText(textNode =>{
+  if (textNode.nodeType !== 3) {
+    return;
+  }
+
+  const el = textNode.parentElement;
+
+  if (el.closest(".crap")){
+    return ""
+  }
+
+
+}))

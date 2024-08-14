@@ -158,11 +158,22 @@ class Element extends ParentNode {
   // </specialGetters>
 
 
-  // <contentRelated>
-  get innerText() {
+  __getInnerText(customGetter) {
     const text = [];
     let {[NEXT]: next, [END]: end} = this;
+
+
+
     while (next !== end) {
+        if (typeof customGetter === "function") {
+          const custom = customGetter(next);
+          if (typeof custom === "string") {
+            text.push(custom)
+            next = next[NEXT];
+            continue;
+          }
+        }
+
       // Add tabulators between table columns
       if (
           TABLE_ELEMENTS.has(next.tagName) &&
@@ -194,6 +205,12 @@ class Element extends ParentNode {
 
     }
     return text.join('');
+
+  }
+
+  // <contentRelated>
+  get innerText() {
+    return this.__getInnerText()
   }
 
   /**
