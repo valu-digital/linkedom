@@ -121,6 +121,7 @@ export function ImageClass(ownerDocument: any): {
         readonly style: any;
         tabIndex: number;
         slot: any;
+        __getInnerText(customGetter: any): string;
         readonly innerText: string;
         textContent: string;
         innerHTML: string;
